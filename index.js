@@ -35,6 +35,15 @@ async function run() {
     app.get("/", (req, res)=>{
       res.send("i am from backend")
     })
+    app.get("/user", async(req, res)=>{
+      const query = {}
+      const options = {
+        projection : {_id:0, email:1}
+      }
+      const cursor = userCollection.find(query,options)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
     app.get("/books", async(req, res)=>{
       console.log("i am books")
       const cursor = booksCollection.find()
