@@ -18,6 +18,7 @@ app.use(cookieParser())
 
 
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kedhyrh.mongodb.net/?retryWrites=true&w=majority`
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,6 +29,7 @@ async function run() {
     const libraryDB = client.db("libraryDB")
     const booksCollection = libraryDB.collection("booksCollection")
     const categoryCollection = libraryDB.collection("categoryCollection")
+    const userCollection = libraryDB.collection("userCollection")
 
 
     app.get("/", (req, res)=>{
@@ -46,9 +48,16 @@ async function run() {
       res.send(result)
     })
 
-  } finally {
-    // Ensures that the client will close when you finish/error
-    
+    app.post("/user", async(req, res)=>{
+      const newUser = req.body
+      console.log(newUser)
+      const result = await userCollection.insertOne(newUser)
+      res.send(result)
+    })
+
+  } 
+  catch(err){
+    console.log(err)
   }
 }
 run().catch(console.dir);
