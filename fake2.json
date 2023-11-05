@@ -1,0 +1,25 @@
+
+
+[
+    {
+      "category": "Science Fiction",
+      "image": "https://i.ibb.co/Bwrdv5Z/science-fiction.png"
+    },
+    {
+      "category": "Drama",
+      "image": "https://i.ibb.co/KXwNSCY/drama.png"
+    },
+    {
+      "category": "History",
+      "image": "https://i.ibb.co/nwVMF2k/history.png"
+    },
+    {
+      "category": "Thriller",
+      "image": "https://i.ibb.co/RNtj93Q/thiller.png"
+    },
+    {
+      "category": "Novel",
+      "image": "https://i.ibb.co/jWV9WkJ/novel.png"
+    }
+  ]
+  
