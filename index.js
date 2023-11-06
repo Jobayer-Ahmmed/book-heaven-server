@@ -53,10 +53,15 @@ async function run() {
     })
     app.get("/books/:category", async(req, res)=>{
       const getCategory = req.params.category
-      console.log(getCategory)
       const query = {category:getCategory}
       const cursor = booksCollection.find(query)
       const result = await cursor.toArray()
+      res.send(result)
+    })
+    app.get("/details/:name", async(req, res)=>{
+      const getName = req.params.name
+      const query = {name : getName}
+      const result = await booksCollection.findOne(query)
       res.send(result)
     })
     app.get("/category", async(req, res)=>{
