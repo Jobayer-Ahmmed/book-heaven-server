@@ -30,6 +30,7 @@ async function run() {
     const booksCollection = libraryDB.collection("booksCollection")
     const categoryCollection = libraryDB.collection("categoryCollection")
     const userCollection = libraryDB.collection("userCollection")
+    const employeeCollection = libraryDB.collection("employeeCollection")
 
 
     app.get("/", (req, res)=>{
@@ -56,6 +57,12 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    app.get("/employee", async(req, res)=>{
+      const cursor = employeeCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
 
     app.post("/user", async(req, res)=>{
       const newUser = req.body
