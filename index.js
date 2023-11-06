@@ -51,6 +51,14 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    app.get("/books/:category", async(req, res)=>{
+      const getCategory = req.params.category
+      console.log(getCategory)
+      const query = {category:getCategory}
+      const cursor = booksCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
     app.get("/category", async(req, res)=>{
       console.log("i am from  category")
       const cursor = categoryCollection.find()
