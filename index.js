@@ -31,6 +31,7 @@ async function run() {
     const categoryCollection = libraryDB.collection("categoryCollection")
     const userCollection = libraryDB.collection("userCollection")
     const employeeCollection = libraryDB.collection("employeeCollection")
+    const borrowCollection = libraryDB.collection("borrowCollection")
 
 
     app.get("/", (req, res)=>{
@@ -81,6 +82,12 @@ async function run() {
       const newUser = req.body
       console.log(newUser)
       const result = await userCollection.insertOne(newUser)
+      res.send(result)
+    })
+    app.post("/borrow", async(req, res)=>{
+      const newBorrow = req.body
+      console.log(newBorrow)
+      const result = await borrowCollection.insertOne(newBorrow)
       res.send(result)
     })
 
