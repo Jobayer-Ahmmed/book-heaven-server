@@ -76,6 +76,11 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    app.get("/borrow", async(req, res)=>{
+      const cursor = borrowCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
 
 
     app.post("/user", async(req, res)=>{
