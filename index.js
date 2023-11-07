@@ -66,7 +66,6 @@ async function run() {
       res.send(result)
     })
     app.get("/category", async(req, res)=>{
-      console.log("i am from  category")
       const cursor = categoryCollection.find()
       const result = await cursor.toArray()
       res.send(result)
@@ -76,8 +75,10 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
-    app.get("/borrow", async(req, res)=>{
-      const cursor = borrowCollection.find()
+    app.get("/borrow/:email", async(req, res)=>{
+      const getEmail = req.params.email
+      const query = {email:getEmail}
+      const cursor = borrowCollection.find(query)
       const result = await cursor.toArray()
       res.send(result)
     })
@@ -91,10 +92,15 @@ async function run() {
     })
     app.post("/borrow", async(req, res)=>{
       const newBorrow = req.body
-      console.log(newBorrow)
       const result = await borrowCollection.insertOne(newBorrow)
       res.send(result)
     })
+    app.post("/books", async(req, res)=>{
+      const newBook = req.body
+      const result = await booksCollection.insertOne(newBook)
+      res.send(result)
+    })
+
 
   } 
   catch(err){
