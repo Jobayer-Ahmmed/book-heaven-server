@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import  { MongoClient, ObjectId, ServerApiVersion } from "mongodb"
 import "dotenv/config"
+import jwt from "jsonwebtoken"
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -15,8 +16,30 @@ app.use(express.json())
 app.use(cookieParser())
 
 
+const verifyToken = async(req, res, next)=>{
+  const myToken = req.cookies?.token
 
+  if(!myToken){
+    return res.status(401).send({
+      message:"unauthosize"
+    })
+  }
+  jwt.verify(myToken, process.env.ACCESS_TOKEN_KEY, (err, decoded)=>{
+    if(err){
+      return res.status(401).send({message:"unauthosize"})
+    }
+    req.myDecoded = decoded
+    next()
+  })
+}
 
+// if(req.query?.email !== req.myDecoded.email){
+//   return res.status(403).send({message: "Forbidden Access"})
+// }
+// const query = {}
+// if(req.query?.email){
+//   query = {email : req.query.email}
+// }
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kedhyrh.mongodb.net/?retryWrites=true&w=majority`
@@ -46,8 +69,8 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
-    app.get("/books", async(req, res)=>{
-      console.log("i am books")
+    app.get("/books",  async(req, res)=>{
+
       const cursor = booksCollection.find()
       const result = await cursor.toArray()
       res.send(result)
@@ -87,9 +110,20 @@ async function run() {
       const query = {email:getEmail}
       const options = {
         projection : {_id:0, name:1}
+        
       }
       const cursor = borrowCollection.find(query,options)
       const result = await cursor.toArray()
+      res.send(result)
+    })
+    app.get("/read/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId = new ObjectId(getId)
+      const query = {_id:getId}
+      const options = {
+        projection : {_id:0, read:1}
+      }
+      const result = await booksCollection.findOne(query)
       res.send(result)
     })
 
