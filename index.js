@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
-import  { MongoClient, ServerApiVersion } from "mongodb"
+import  { MongoClient, ObjectId, ServerApiVersion } from "mongodb"
 import "dotenv/config"
 
 const app = express()
@@ -81,7 +81,18 @@ async function run() {
       const cursor = borrowCollection.find(query)
       const result = await cursor.toArray()
       res.send(result)
+    }),
+    app.get("/borrowEmail/:email", async(req, res)=>{
+      const getEmail = req.params.email
+      const query = {email:getEmail}
+      const options = {
+        projection : {_id:0, email:1}
+      }
+      const cursor = borrowCollection.find(query,options)
+      const result = await cursor.toArray()
+      res.send(result)
     })
+
 
 
     app.post("/user", async(req, res)=>{
@@ -98,6 +109,14 @@ async function run() {
     app.post("/books", async(req, res)=>{
       const newBook = req.body
       const result = await booksCollection.insertOne(newBook)
+      res.send(result)
+    })
+
+    app.delete("/borrow/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId =  new ObjectId(getId)
+      const query = {_id:getId}
+      const result = await borrowCollection.deleteOne(query)
       res.send(result)
     })
 
