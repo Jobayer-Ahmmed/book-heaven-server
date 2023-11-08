@@ -82,11 +82,11 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     }),
-    app.get("/borrowEmail/:email", async(req, res)=>{
+    app.get("/borrowBook/:email", async(req, res)=>{
       const getEmail = req.params.email
       const query = {email:getEmail}
       const options = {
-        projection : {_id:0, email:1}
+        projection : {_id:0, name:1}
       }
       const cursor = borrowCollection.find(query,options)
       const result = await cursor.toArray()
@@ -109,6 +109,21 @@ async function run() {
     app.post("/books", async(req, res)=>{
       const newBook = req.body
       const result = await booksCollection.insertOne(newBook)
+      res.send(result)
+    })
+
+    app.put("/books/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId = new ObjectId(getId)
+      const data = req.body
+      const query = {_id:getId}
+
+      const editData = {
+        $set:{
+          quantity: data.myQuantity
+        }
+      }
+      const result = await booksCollection.updateOne(query, editData)
       res.send(result)
     })
 
