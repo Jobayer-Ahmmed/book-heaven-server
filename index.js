@@ -18,17 +18,14 @@ app.use(cookieParser())
 
 const verifyToken = async(req, res, next)=>{
   const myToken = req.cookies?.token
-
   if(!myToken){
-    return res.status(401).send({
-      message:"unauthosize"
-    })
+    return res.status(401).send({message:"unauthosize"})
   }
   jwt.verify(myToken, process.env.ACCESS_TOKEN_KEY, (err, decoded)=>{
     if(err){
       return res.status(401).send({message:"unauthosize"})
     }
-    req.myDecoded = decoded
+    req.decoded = decoded
     next()
   })
 }
@@ -46,15 +43,40 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri);
-
-async function run() {
+const dbConnect = async () => {
   try {
+      client.connect()
+      console.log('DB Connected Successfully✅')
+  } catch (error) {
+      console.log(error.name, error.message)
+  }
+}
+dbConnect()
+
     const libraryDB = client.db("libraryDB")
     const booksCollection = libraryDB.collection("booksCollection")
     const categoryCollection = libraryDB.collection("categoryCollection")
     const userCollection = libraryDB.collection("userCollection")
     const employeeCollection = libraryDB.collection("employeeCollection")
     const borrowCollection = libraryDB.collection("borrowCollection")
+
+// token
+    app.post("/jwt",  async(req, res)=>{
+      const newUser = req.body
+      console.log(newUser)
+      console.log(req.myDecoded)
+      const token = jwt.sign(newUser, process.env.ACCESS_TOKEN_KEY,{expiresIn:"1d"})
+      res
+      .cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      })
+      .send({
+          status: true,
+      })
+    })
+
 
 
     app.get("/", (req, res)=>{
@@ -69,19 +91,31 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
-    app.get("/books",  async(req, res)=>{
+    app.get("/books", async(req, res)=>{
 
       const cursor = booksCollection.find()
       const result = await cursor.toArray()
       res.send(result)
+
     })
+    app.get("/librarian", async(req, res)=>{
+
+      const cursor = booksCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+
+    })
+
+
     app.get("/books/:category", async(req, res)=>{
       const getCategory = req.params.category
       const query = {category:getCategory}
-      const cursor = booksCollection.find(query)
-      const result = await cursor.toArray()
-      res.send(result)
+        const cursor2 = booksCollection.find()
+        const result = await cursor2.toArray()
+        res.send(result)
     })
+
+
     app.get("/details/:name", async(req, res)=>{
       const getName = req.params.name
       const query = {name : getName}
@@ -126,6 +160,8 @@ async function run() {
       const result = await booksCollection.findOne(query)
       res.send(result)
     })
+ 
+
 
 
 
@@ -140,7 +176,7 @@ async function run() {
       const result = await borrowCollection.insertOne(newBorrow)
       res.send(result)
     })
-    app.post("/books", async(req, res)=>{
+    app.post("/books",verifyToken, async(req, res)=>{
       const newBook = req.body
       const result = await booksCollection.insertOne(newBook)
       res.send(result)
@@ -170,12 +206,7 @@ async function run() {
     })
 
 
-  } 
-  catch(err){
-    console.log(err)
-  }
-}
-run().catch(console.dir);
+ 
 
 
 app.listen(port, ()=>console.log(`the port ${port} is running`))
