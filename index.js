@@ -8,12 +8,15 @@ import jwt from "jsonwebtoken"
 const app = express()
 const port = process.env.PORT || 5000
 
-app.use(cors({
-  origin:["http://localhost:5173, https://library-d28b1.web.app"],
-  credentials: true
-}))
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
+
+
+// {
+//   origin:["http://localhost:5173, https://library-d28b1.web.app"],
+//   credentials: true
+// }
 
 
 const verifyToken = async(req, res, next)=>{
@@ -110,8 +113,8 @@ dbConnect()
     app.get("/books/:category", async(req, res)=>{
       const getCategory = req.params.category
       const query = {category:getCategory}
-        const cursor2 = booksCollection.find()
-        const result = await cursor2.toArray()
+        const cursor = booksCollection.find(query)
+        const result = await cursor.toArray()
         res.send(result)
     })
 
@@ -119,6 +122,13 @@ dbConnect()
     app.get("/details/:name", async(req, res)=>{
       const getName = req.params.name
       const query = {name : getName}
+      const result = await booksCollection.findOne(query)
+      res.send(result)
+    })
+    app.get("/edit/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId = new ObjectId(getId)
+      const query = {_id:getId}
       const result = await booksCollection.findOne(query)
       res.send(result)
     })
@@ -176,7 +186,7 @@ dbConnect()
       const result = await borrowCollection.insertOne(newBorrow)
       res.send(result)
     })
-    app.post("/books",verifyToken, async(req, res)=>{
+    app.post("/books", async(req, res)=>{
       const newBook = req.body
       const result = await booksCollection.insertOne(newBook)
       res.send(result)
@@ -196,12 +206,40 @@ dbConnect()
       const result = await booksCollection.updateOne(query, editData)
       res.send(result)
     })
+    app.put("/book/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId = new ObjectId(getId)
+      const data = req.body
+      const query = {_id:getId}
+
+      const editData = {
+        $set:{
+          image:data.image,
+          name:data.name,
+          quantity:data.quantity,
+          author_name:data.author_name,
+          category:data.category,
+          description:data.description,
+          rating:data.rating,
+          read:data.read
+        }
+      }
+      const result = await booksCollection.updateOne(query, editData)
+      res.send(result)
+    })
 
     app.delete("/borrow/:id", async(req, res)=>{
       let getId = req.params.id
       getId =  new ObjectId(getId)
       const query = {_id:getId}
       const result = await borrowCollection.deleteOne(query)
+      res.send(result)
+    })
+    app.delete("/delete/:id", async(req, res)=>{
+      let getId = req.params.id
+      getId =  new ObjectId(getId)
+      const query = {_id:getId}
+      const result = await booksCollection.deleteOne(query)
       res.send(result)
     })
 
